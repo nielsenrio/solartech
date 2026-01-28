@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Senac Site Online</title>
+  </head>
+
+ <body>
+    <header>
+      <h1>Senac Site - Página de Contato</h1>
+      <p>Minha primeira aplicação back-end com Django.</p>
+    </header>
+
+    <main>
+      <section>
+        <h2>Contato</h2>
+        <h4>"Olá, {{ nome }}! Bem-vindo(a) a Atividade Prática do Curso!”</h4>
+        <ul>
+            <li>Email: contato@senacrj.com.br</li>
+            <li>Telefone: (21) 4004-5034</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer>
+        <a href="{% url 'home' %}">Voltar para página principal</a>
+        <p>© 2026 Direitos Reservados</p>
+    </footer>
+  </body>
+</html>
