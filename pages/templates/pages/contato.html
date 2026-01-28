@@ -1,31 +1,33 @@
-<!doctype html>
-<html lang="pt-BR">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Senac Site Online</title>
-  </head>
+{% extends "pages/base.html" %}
 
- <body>
-    <header>
-      <h1>Senac Site - Página de Contato</h1>
-      <p>Minha primeira aplicação back-end com Django.</p>
-    </header>
+{% block title %}Contato, Senac Site{% endblock %}
 
-    <main>
-      <section>
-        <h2>Contato</h2>
-        <h4>"Olá, {{ nome }}! Bem-vindo(a) a Atividade Prática do Curso!”</h4>
-        <ul>
-            <li>Email: contato@senacrj.com.br</li>
-            <li>Telefone: (21) 4004-5034</li>
-        </ul>
-      </section>
-    </main>
+{% block content %}
 
-    <footer>
-        <a href="{% url 'home' %}">Voltar para página principal</a>
-        <p>© 2026 Direitos Reservados</p>
-    </footer>
-  </body>
-</html>
+<section aria-labelledby="titulo-contato">
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h1 id="titulo-contato" class="card-title mb-3">
+        <i class="fa-solid fa-envelope me-2 text-primary"></i>
+        Contato
+      </h1>
+
+      <p class="mb-4">
+        Entre em contato conosco pelos canais abaixo.
+      </p>
+
+      <ul class="list-group">
+        <li class="list-group-item">
+          <i class="fa-solid fa-at me-2 text-secondary"></i>
+          <a href="mailto:contato@senacrj.com.br">contato@senacrj.com.br</a>
+        </li>
+        <li class="list-group-item">
+          <i class="fa-solid fa-phone me-2 text-secondary"></i>
+          <a href="tel:+552140045034">(21) 4004-5034</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
