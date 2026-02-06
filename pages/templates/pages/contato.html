@@ -26,8 +26,64 @@
           <a href="tel:+552140045034">(21) 4004-5034</a>
         </li>
       </ul>
+
+      <form action="{% url 'contato' %}" method="post">
+        {% csrf_token %}
+
+        <div class="mb-3 mt-1">
+            {% if form.nome.errors %}
+            <div class="alert text-danger" role="alert">
+                {{ form.nome.errors }}
+            </div>
+            {% endif %}
+            {{ form.nome.label_tag }}
+            {{ form.nome }}
+        </div>
+
+        <div class="mb-3">
+            {% if form.email.errors %}
+            <div class="alert text-danger" role="alert">
+                {{ form.email.errors }}
+            </div>
+            {% endif %}
+            {{ form.email.label_tag }}
+            {{ form.email }}
+        </div>
+
+        <div class="mb-3">
+            {% if form.mensagem.errors %}
+            <div class="alert text-danger" role="alert">
+                {{ form.mensagem.errors }}
+            </div>
+            {% endif %}
+            {{ form.mensagem.label_tag }}
+            {{ form.mensagem }}
+        </div>
+
+        <div class="d-grid gap-2">
+            <button class="btn btn-primary" type="submit">Enviar</button>
+        </div>
+      </form>
     </div>
   </div>
 </section>
 
 {% endblock %}
+
+<!--
+# Revisar a view contato e explicar, em comentário no código:
+#
+# O que acontece quando a requisição é GET.
+# Resp.: Nenhum dado foi enviado pelo formulário, então é criado o formulário vazio.
+#
+# O que acontece quando a requisição é POST.
+# Resp.: Formulário sendo preenchido e ao clicar no botão envio, o navegador faz o processamento das informações (captura dos dados) por requisição POST.
+#
+# Por que usamos form.is_valid().
+# Resp.: Meu entendimento é que através deste recurso do Django que ocorre a validação em back-end
+#        (momento em que os dados são capturados e enviados via requisição POST)
+#
+# Por que usamos cleaned_data.
+# Resp.: Meu entendimento é que os dados recebidos no formulário são tratados pelo cleaned_dat (como limpeza de espaços).
+         Dar consistência aos dados x campos dos formulários.
+-->
