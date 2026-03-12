@@ -1,67 +1,186 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.db import transaction
+from pages.models import Cliente, Solicitacao
 
-class ContatoForm(forms.Form):
-    nome = forms.CharField(
-        label='Nome',
-        min_length=3,
-        required=True,
-        widget=forms.TextInput(attrs= {
-            'placeholder': 'Digite seu nome',
-            'class': 'form-control'
-        })
-    )
 
-    email = forms.EmailField(
-        label='Email',
-        required=True,
-        widget = forms.TextInput(attrs={
-            'placeholder': 'Digite seu email',
-            'class': 'form-control'
-        })
-    )
-
+class ContatoForm(forms.ModelForm):
     mensagem = forms.CharField(
-        label='Mensagem',
-        min_length=10,
-        max_length=300,
         widget=forms.Textarea(attrs={
             'placeholder': 'Digite sua mensagem',
             'class': 'form-control',
             'rows': 4
-        })
+        }),
+        label='Mensagem',
+        required=True
     )
 
-    def clean_mensagem(self):
-        mensagem = self.cleaned_data.get('mensagem', "").strip()
-        quantidade_palavras = len(mensagem.split())
-
-        if quantidade_palavras < 5:
-            raise ValidationError("A mensagem deve conter pelo menos 5 palavras.")
-
-        return mensagem
+    class Meta:
+        model = Cliente
+        fields = ['nome', 'email', 'tipo', 'telefone', 'cep', 'cidade', 'estado']
+        widgets = {
+            'nome': forms.TextInput(attrs={
+                'placeholder': 'Digite seu nome completo',
+                'class': 'form-control'
+            }),
+            'email': forms.EmailInput(attrs={
+                'placeholder': 'Digite seu email',
+                'class': 'form-control'
+            }),
+            'tipo': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'telefone': forms.TelInput(attrs={
+                'placeholder': '(00) 00000-0000',
+                'class': 'form-control'
+            }),
+            'cep': forms.TextInput(attrs={
+                'placeholder': '00000-000',
+                'class': 'form-control'
+            }),
+            'cidade': forms.TextInput(attrs={
+                'placeholder': 'Digite sua cidade',
+                'class': 'form-control'
+            }),
+            'estado': forms.TextInput(attrs={
+                'placeholder': 'Digite seu estado (UF)',
+                'class': 'form-control'
+            }),
+        }
 
     def clean_nome(self):
-        nome = self.cleaned_data.get('nome', "").strip()
-        tamanho_nome = len(nome.split())
+        nome = (self.cleaned_data.get('nome') or '').strip()
 
-        if tamanho_nome < 2:
-            raise ValidationError("Informe o nome e sobrenome ou o nome composto.")
+        if len(nome.split()) < 2:
+            raise ValidationError(
+                'Informe o nome completo, nome e sobrenome.'
+            )
 
         return nome
 
+    def clean_mensagem(self):
+        mensagem = (self.cleaned_data.get('mensagem') or '').strip()
 
-# Parte 1 – Entendendo o Form existente (aquecimento)
-# 1.Em qual arquivo está definida a classe do formulário?
-#   Resp.:'forms.py'.
-#
-# 2.Qual classe do Django ela estende?
-#   Resp.: forms.Form / Meu entendimento é que tratasse de um formulário aonde 'os dados'
-#          são apenas coletados para validação por metodo "POST" do HTML.
-#
-# 3.Onde ocorre a validação dos dados?
-#   Resp.: A validação ocorre no back-end.
-#
-# 4.Em que momento clean_mensagem é executado?
-#   Resp.: Quando 'form.is_valid()' é executado.
+        if len(mensagem.split()) < 5:
+            raise ValidationError(
+                'A mensagem deve conter pelo menos 5 palavras.'
+            )
 
+        return mensagem
+
+    @transaction.atomic
+    def save(self, commit=True):
+        cliente, _ = Cliente.objects.get_or_create(
+            email=self.cleaned_data['email'],
+            defaults={
+                'nome': self.cleaned_data['nome'],
+                'telefone': self.cleaned_data.get('telefone'),
+                'tipo': self.cleaned_data.get('tipo'),
+                'cep': self.cleaned_data.get('cep'),
+                'cidade': self.cleaned_data.get('cidade'),
+                'estado': self.cleaned_data.get('estado'),
+            }
+        )
+
+        Solicitacao.objects.create(
+            cliente=cliente,
+            solicitacao=self.cleaned_data['mensagem']
+        )
+
+        return cliente
+
+
+class ClienteForm(forms.ModelForm):
+    class Meta:
+        model = Cliente
+        fields = [
+            'nome',
+            'email',
+            'telefone',
+            'tipo',
+            'cep',
+            'cidade',
+            'estado',
+        ]
+        widgets = {
+            'nome': forms.TextInput(attrs={
+                'placeholder': 'Digite seu nome completo',
+                'class': 'form-control'
+            }),
+            'email': forms.EmailInput(attrs={
+                'placeholder': 'Digite seu email',
+                'class': 'form-control'
+            }),
+            'telefone': forms.TextInput(attrs={
+                'placeholder': '(00) 00000-0000',
+                'class': 'form-control'
+            }),
+            'tipo': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'cep': forms.TextInput(attrs={
+                'placeholder': '00000-000',
+                'class': 'form-control'
+            }),
+            'cidade': forms.TextInput(attrs={
+                'placeholder': 'Digite sua cidade',
+                'class': 'form-control'
+            }),
+            'estado': forms.TextInput(attrs={
+                'placeholder': 'UF',
+                'class': 'form-control'
+            }),
+        }
+
+    def clean_cep(self):
+        cep = (self.cleaned_data.get('cep') or '').strip()
+
+        if len(cep) != 9 or not cep.replace('-', '').isdigit():
+            raise forms.ValidationError(
+                'O CEP deve estar no formato 00000-000.'
+            )
+
+        return cep
+
+    def clean_telefone(self):
+        telefone = (self.cleaned_data.get('telefone') or '').strip()
+
+        if len(telefone) < 10 or not telefone.replace('(', '').replace(')', '').replace('-', '').replace(' ', '').isdigit():
+            raise forms.ValidationError(
+                'O telefone deve conter pelo menos 10 dígitos e estar no formato (00) 00000-0000.'
+            )
+
+        return telefone
+
+    def clean_nome(self):
+        nome = (self.cleaned_data.get('nome') or '').strip()
+
+        if len(nome) < 3:
+            raise forms.ValidationError(
+                'O nome deve conter pelo menos 3 caracteres.'
+            )
+
+        if len(nome.split()) < 2:
+            raise forms.ValidationError(
+                'Informe o nome completo, nome e sobrenome.'
+            )
+
+        return nome
+
+    def clean_email(self):
+        email = (self.cleaned_data.get('email') or '').strip().lower()
+
+        if not email:
+            raise forms.ValidationError('O email é obrigatório.')
+
+        qs = Cliente.objects.filter(email=email)
+
+        if self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+
+        if qs.exists():
+            raise forms.ValidationError(
+                'Este email já está em uso.'
+            )
+
+        return email

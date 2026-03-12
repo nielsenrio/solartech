@@ -1,6 +1,12 @@
 {% extends "pages/base.html" %}
 
-{% block title %}Solicitar Orçamento - SolarTech{% endblock %}
+{% block title %}
+  {% if form.instance.pk %}
+    Editar Cliente - SolarTech
+  {% else %}
+    Novo Cliente - SolarTech
+  {% endif %}
+{% endblock %}
 
 {% block content %}
 
@@ -9,97 +15,117 @@
   <div class="card shadow-sm">
     <div class="card-body">
 
-      <h1 class="h4 mb-4">
-        <i class="fa-solid fa-solar-panel me-2 text-primary"></i>
-        Solicitação de Orçamento
-      </h1>
+      <!-- Título -->
+      <header class="d-flex align-items-center mb-4">
+        <i class="fa-solid fa-user-plus fa-lg text-primary me-2"></i>
+        <h1 class="h4 mb-0">
+          {% if form.instance.pk %}
+            Editar Cliente
+          {% else %}
+            Cadastrar Novo Cliente
+          {% endif %}
+        </h1>
+      </header>
 
+      <!-- Formulário -->
       <form method="post" novalidate>
         {% csrf_token %}
 
         <div class="row g-3">
 
+          <!-- Nome -->
           <div class="col-md-6">
-            <label class="form-label">Nome</label>
+            <label for="id_nome" class="form-label">Nome</label>
             {{ form.nome }}
-
             {% if form.nome.errors %}
-                {% for error in form.nome.errors %}
-                    <div class="text-danger small">{{ error }}</div>
-                {% endfor %}
+              <div class="text-danger small">
+                {{ form.nome.errors }}
+              </div>
             {% endif %}
           </div>
 
+          <!-- Email -->
           <div class="col-md-6">
-            <label class="form-label">Email</label>
+            <label for="id_email" class="form-label">Email</label>
             {{ form.email }}
             {% if form.email.errors %}
-                {% for error in form.email.errors %}
-                    <div class="text-danger small">{{ error }}</div>
-                {% endfor %}
+              <div class="text-danger small">
+                {{ form.email.errors }}
+              </div>
             {% endif %}
           </div>
 
+          <!-- Telefone -->
           <div class="col-md-6">
-            <label class="form-label">Telefone</label>
+            <label for="id_telefone" class="form-label">Telefone</label>
             {{ form.telefone }}
             {% if form.telefone.errors %}
-                {% for error in form.telefone.errors %}
-                    <div class="text-danger small">{{ error }}</div>
-                {% endfor %}
+              <div class="text-danger small">
+                {{ form.telefone.errors }}
+              </div>
             {% endif %}
           </div>
 
+          <!-- Tipo -->
           <div class="col-md-6">
-            <label class="form-label">Tipo</label>
+            <label for="id_tipo" class="form-label">Tipo de Cliente</label>
             {{ form.tipo }}
             {% if form.tipo.errors %}
-                {% for error in form.tipo.errors %}
-                    <div class="text-danger small">{{ error }}</div>
-                {% endfor %}
+              <div class="text-danger small">
+                {{ form.tipo.errors }}
+              </div>
             {% endif %}
           </div>
 
+          <!-- CEP -->
           <div class="col-md-4">
-            <label class="form-label">CEP</label>
+            <label for="id_cep" class="form-label">CEP</label>
             {{ form.cep }}
             {% if form.cep.errors %}
-                {% for error in form.cep.errors %}
-                    <div class="text-danger small">{{ error }}</div>
-                {% endfor %}
+              <div class="text-danger small">
+                {{ form.cep.errors }}
+              </div>
             {% endif %}
           </div>
 
+          <!-- Cidade -->
           <div class="col-md-4">
-            <label class="form-label">Cidade</label>
+            <label for="id_cidade" class="form-label">Cidade</label>
             {{ form.cidade }}
             {% if form.cidade.errors %}
-                {% for error in form.cidade.errors %}
-                    <div class="text-danger small">{{ error }}</div>
-                {% endfor %}
+              <div class="text-danger small">
+                {{ form.cidade.errors }}
+              </div>
             {% endif %}
           </div>
 
+          <!-- Estado -->
           <div class="col-md-4">
-            <label class="form-label">Estado</label>
+            <label for="id_estado" class="form-label">Estado</label>
             {{ form.estado }}
             {% if form.estado.errors %}
-                {% for error in form.estado.errors %}
-                    <div class="text-danger small">{{ error }}</div>
-                {% endfor %}
+              <div class="text-danger small">
+                {{ form.estado.errors }}
+              </div>
             {% endif %}
-          </div>
-
-          <div class="col-12">
-            <label class="form-label">Descreva sua necessidade</label>
-            {{ form.mensagem }}
           </div>
 
         </div>
 
-        <button type="submit" class="btn btn-primary mt-4">
-          Enviar Solicitação
-        </button>
+        <!-- Botões -->
+        <div class="mt-4 d-flex justify-content-between">
+
+          <a href="{% url 'pessoas' %}" class="btn btn-outline-secondary">
+            <i class="fa-solid fa-arrow-left me-1"></i>
+            Voltar
+          </a>
+
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-save me-1"></i>
+            Salvar
+          </button>
+
+        </div>
 
       </form>
 
